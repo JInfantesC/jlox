@@ -10,7 +10,7 @@ import static lox.TokenType.*;
 public class Scanner {
     private final String source;
     private final List<Token> tokens= new ArrayList<>();
-    
+
     private static final Map<String, TokenType> keywords;
 
     static {
@@ -40,12 +40,12 @@ public class Scanner {
     private int line=1;
 
 
-    Scanner(String source){
+    Scanner(String source) {
         this.source=source;
     }
 
-    List<Token> scanTokens(){
-        while(!isAtEnd()){
+    List<Token> scanTokens() {
+        while(!isAtEnd()) {
             start=current;// We are at the beginning of the next lexeme.
             scanToken();
         }
@@ -53,61 +53,61 @@ public class Scanner {
         return tokens;
     }
 
-    private void scanToken(){
+    private void scanToken() {
         char c=advance();
-        switch(c){
-            case '(': addToken(LEFT_PAREN); break;
-            case ')': addToken(RIGHT_PAREN); break;
-            case '{': addToken(LEFT_BRACE); break;
-            case '}': addToken(RIGHT_BRACE); break;
-            case ',': addToken(COMMA); break;
-            case '.': addToken(DOT); break;
-            case '-': addToken(MINUS); break;
-            case '+': addToken(PLUS); break;
-            case ';': addToken(SEMICOLON); break;
-            case '*': addToken(STAR); break;
-            case '!': 
-                addToken(match('=')? BANG_EQUAL:BANG);
-                break;
-            case '=': 
-                addToken(match('=')? EQUAL_EQUAL:EQUAL);
-                break;
-            case '<': 
-                addToken(match('=')? LESS_EQUAL:LESS);
-                break;
-            case '>': 
-                addToken(match('=')? GREATER_EQUAL:GREATER);
-                break;
-            case '/':
-                if(match('/')){
-                    // A comment goes until the end of the line
-                    while(peek()!='\n' && !isAtEnd()) advance();
-                }else{
-                    addToken(SLASH);
-                }
-                break;
-            case ' ':
-            case '\r':
-            case '\t':
-                break;
-            case '\n':
-                line++;
-                break;
-            case '"': string(); break;
-            default:
-                // Para números, en default comprobamos si es digito para no hacer un case por cada número.
-                if(isDigit(c)){
-                    number();
-                }else if(isAlpha(c)){ // Para palabras reservadas e identificadores
-                    identifier();
-                }else{
-                    Lox.error(line, "Unexpected character."); // Mezclar varios en un único error sería mejor UX
-                }
-                break;
+        switch(c) {
+        case '(': addToken(LEFT_PAREN); break;
+        case ')': addToken(RIGHT_PAREN); break;
+        case '{': addToken(LEFT_BRACE); break;
+        case '}': addToken(RIGHT_BRACE); break;
+        case ',': addToken(COMMA); break;
+        case '.': addToken(DOT); break;
+        case '-': addToken(MINUS); break;
+        case '+': addToken(PLUS); break;
+        case ';': addToken(SEMICOLON); break;
+        case '*': addToken(STAR); break;
+        case '!':
+            addToken(match('=')? BANG_EQUAL:BANG);
+            break;
+        case '=':
+            addToken(match('=')? EQUAL_EQUAL:EQUAL);
+            break;
+        case '<':
+            addToken(match('=')? LESS_EQUAL:LESS);
+            break;
+        case '>':
+            addToken(match('=')? GREATER_EQUAL:GREATER);
+            break;
+        case '/':
+            if(match('/')) {
+                // A comment goes until the end of the line
+                while(peek()!='\n' && !isAtEnd()) advance();
+            } else {
+                addToken(SLASH);
+            }
+            break;
+        case ' ':
+        case '\r':
+        case '\t':
+            break;
+        case '\n':
+            line++;
+            break;
+        case '"': string(); break;
+        default:
+            // Para números, en default comprobamos si es digito para no hacer un case por cada número.
+            if(isDigit(c)) {
+                number();
+            } else if(isAlpha(c)) { // Para palabras reservadas e identificadores
+                identifier();
+            } else {
+                Lox.error(line, "Unexpected character."); // Mezclar varios en un único error sería mejor UX
+            }
+            break;
         }
     }
 
-    private void identifier(){
+    private void identifier() {
         while (isAlphaNumeric(peek())) advance();
 
         String text=source.substring(start, current);
@@ -117,11 +117,11 @@ public class Scanner {
         addToken(type);
     }
 
-    private void number(){
+    private void number() {
         while(isDigit(peek())) advance();
 
         // Look for a fractional part.
-        if(peek()=='.' && isDigit(peekNext())){
+        if(peek()=='.' && isDigit(peekNext())) {
             // consume '.'
             advance();
         }
@@ -131,13 +131,13 @@ public class Scanner {
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
-    private void string(){
-        while(peek()!='"' && !isAtEnd()){
+    private void string() {
+        while(peek()!='"' && !isAtEnd()) {
             if(peek()=='\n') line++;
             advance();
         }
 
-        if (isAtEnd()){
+        if (isAtEnd()) {
             Lox.error(line, "Unterminated string.");
             return;
         }
@@ -149,51 +149,51 @@ public class Scanner {
 
     }
 
-    private boolean match(char expected){
+    private boolean match(char expected) {
         if(isAtEnd()) return false;
         if (source.charAt(current)!=expected) return false;
 
         current++;
         return true;
     }
-    private char peek(){
+    private char peek() {
         if(isAtEnd()) return '\0';
         return source.charAt(current);
     }
 
-    private char peekNext(){
+    private char peekNext() {
         if(current+1>=source.length()) return '\0';
         return source.charAt(current+1);
     }
 
-    private boolean isAlpha(char c){
+    private boolean isAlpha(char c) {
         return  (c>='a' && c<='z') ||
                 (c>='A' && c<='Z') ||
                 c=='_';
     }
 
-    private boolean isAlphaNumeric(char c){
+    private boolean isAlphaNumeric(char c) {
         return isAlpha(c)|| isDigit(c);
     }
 
-    private boolean isDigit(char c){
+    private boolean isDigit(char c) {
         return c>='0' && c<='9';
     }
 
-    private boolean isAtEnd(){
+    private boolean isAtEnd() {
         return current>=source.length();
     }
 
-    private char advance(){
+    private char advance() {
         return source.charAt(current++);
     }
 
-    private void addToken(TokenType type){
+    private void addToken(TokenType type) {
         addToken(type, null);
     }
 
     // Object literal, para que acepte, strings, doubles, o lo que sea.
-    private void addToken(TokenType type, Object literal){
+    private void addToken(TokenType type, Object literal) {
         String text= source.substring(start, current);
         tokens.add(new Token(type, text, literal, line));
     }
