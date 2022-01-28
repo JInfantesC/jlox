@@ -7,6 +7,5 @@ run:
 
 format:
 	../astyle --style=java --keep-one-line-blocks --keep-one-line-statements -n ./lox/*.java
-
 	
 fmt:format
