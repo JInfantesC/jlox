@@ -1,0 +1,4 @@
+// New source file
+fun hello(string who){ // Function definition
+    return "Hello "+ who;
+}
