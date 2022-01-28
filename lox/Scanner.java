@@ -70,9 +70,28 @@ public class Scanner {
                 break;
             case '"': string(); break;
             default:
-                Lox.error(line, "Unexpected character."); // Mezclar varios en un único error sería mejor UX
+                // Para números, en default comprobamos si es digito para no hacer un case por cada número.
+                if(isDigit(c)){
+                    number();
+                }else{
+                    Lox.error(line, "Unexpected character."); // Mezclar varios en un único error sería mejor UX
+                }
                 break;
         }
+    }
+
+    private void number(){
+        while(isDigit(peek())) advance();
+
+        // Look for a fractional part.
+        if(peek()=='.' && isDigit(peekNext())){
+            // consume '.'
+            advance();
+        }
+
+        while(isDigit(peek())) advance();
+
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
     private void string(){
@@ -103,6 +122,15 @@ public class Scanner {
     private char peek(){
         if(isAtEnd()) return '\0';
         return source.charAt(current);
+    }
+
+    private char peekNext(){
+        if(current+1>=source.length()) return '\0';
+        return source.charAt(current+1);
+    }
+
+    private boolean isDigit(char c){
+        return c>='0' && c<='9';
     }
 
     private boolean isAtEnd(){
