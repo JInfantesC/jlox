@@ -1,4 +1,9 @@
-// New source file
-fun hello(string who){ // Function definition
+// Single line comment
+
+/*
+* function Hello
+* -> String who: Who will receive the greetings
+*/
+fun Hello(who) { // Function definition
     return "Hello "+ who;
 }
