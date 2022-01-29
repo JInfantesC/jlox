@@ -82,6 +82,9 @@ public class Scanner {
             if(match('/')) {
                 // A comment goes until the end of the line
                 while(peek()!='\n' && !isAtEnd()) advance();
+            } else if(match('*')) {
+                // Block comment with /*. We need to ignore everything until */
+                blockComment();
             } else {
                 addToken(SLASH);
             }
@@ -147,6 +150,24 @@ public class Scanner {
         String value = source.substring(start+1, current-1);
         addToken(STRING, value);
 
+    }
+
+    private void blockComment() {
+        boolean endBlock=false;
+        while(!endBlock && !isAtEnd()) {
+            if(peek()=='*' && peekNext()=='/') { // Si encontramos un *, miramos si el siguiente es / para cerrar el comentario.
+                endBlock=true;
+            } else if(peek()=='\n') { // Si hay un salto de linea, contabilizarlo.
+                line++;
+            }
+            advance();
+        }
+
+        if (isAtEnd()) {
+            Lox.error(line, "Unterminated block comment.");
+            return;
+        }
+        advance(); // The closing /.
     }
 
     private boolean match(char expected) {
